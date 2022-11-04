@@ -1,13 +1,173 @@
 import json
 
 x = {
-    "name": "John",
-    "age": 30,
-    "married": True,
-    "divorced": False,
-    "children": ("Ann", "Billy"),
-    "pets": None,
-    "cars": [{"model": "BMW 230", "mpg": 27.5}, {"model": "Ford Edge", "mpg": 24.1}],
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Scientific Data Schema",
+    "description": "JSON schema for scientific data",
+    "required": ["author", "description", "version", "date", "permalink", "scidata"],
+    "properties": {
+        "author": {"type": "string"},
+        "description": {"type": "string"},
+        "version": {"type": "string"},
+        "date": {"type": "string", "format": "date-time"},
+        "permalink": {"type": "string", "format": "uri"},
+        "scidata": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "fundamental constant",
+                        "property value",
+                        "scientific prefix",
+                        "conversion factor",
+                    ],
+                },
+                "evaluation": {
+                    "type": "string",
+                    "enum": ["experimental", "calculated", "defined"],
+                },
+                "name": {"type": "string"},
+                "symbol": {"type": "string"},
+                "certified": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "date": {"type": "string", "format": "date-time"},
+                        "refnum": {"$ref": "#/definitions/idwithtype"},
+                        "website": {"type": "string", "format": "uri"},
+                    },
+                },
+                "measurement": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "Spectroscopic",
+                                "Magnetic",
+                                "Electrochemical",
+                                "Radioactivity",
+                            ],
+                        },
+                        "method": {"type": "string"},
+                        "instrument": {"type": "string"},
+                        "parameters": {
+                            "type": "array",
+                            "items": {"$ref": "#/definitions/parameter"},
+                        },
+                    },
+                },
+                "calculation": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": ["quantum mechanics", "molecular mechanics"],
+                        },
+                        "method": {"type": "string"},
+                        "software": {"type": "string"},
+                        "version": {"type": "string"},
+                        "settings": {
+                            "type": "array",
+                            "items": {"$ref": "#/definitions/parameter"},
+                        },
+                    },
+                },
+                "definition": {
+                    "type": "object",
+                    "properties": {
+                        "text": {"type": "string"},
+                        "source": {"$ref": "#/definitions/idwithtype"},
+                    },
+                },
+                "context": {
+                    "type": "object",
+                    "properties": {
+                        "organism": {
+                            "type": "object",
+                            "properties": {
+                                "description": {"type": "string"},
+                                "kingdom": {"type": "string"},
+                                "phyllum": {"type": "string"},
+                                "class": {"type": "string"},
+                                "order": {"type": "string"},
+                                "family": {"type": "string"},
+                                "genus": {"type": "string"},
+                                "species": {"type": "string"},
+                            },
+                        },
+                        "system": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "Pure substance",
+                                        "Binary mixture",
+                                        "Ternary mixture",
+                                        "Complex mixture",
+                                        "Binary emulsion",
+                                        "Ternary emulsion",
+                                        "Complex emulsion",
+                                    ],
+                                },
+                                "phase": {
+                                    "@type": "string",
+                                    "enum": [
+                                        "solid",
+                                        "liquid",
+                                        "gas",
+                                        "supercritical fluid",
+                                        "plasma",
+                                    ],
+                                },
+                                "components": {
+                                    "type": "array",
+                                    "items": {"$ref": "#/definitions/substance"},
+                                },
+                            },
+                        },
+                        "conditions": {
+                            "type": "array",
+                            "items": {"$ref": "#/definitions/parameter"},
+                        },
+                    },
+                },
+                "value": {"$ref": "#/definitions/value"},
+                "source": {"$ref": "#/definitions/idwithtype"},
+            },
+        },
+    },
+    "definitions": {
+        "idwithtype": {
+            "description": "Providing an identifier with an indication of its type",
+            "type": "object",
+            "properties": {
+                "identifier": {"type": "string"},
+                "type": {"type": "string"},
+            },
+        },
+        "value": {
+            "description": "A numeric value with or without unit",
+            "$ref": "https://stuchalk.github.io/scidata/schema/value.json#measuredValue",
+        },
+        "parameter": {
+            "description": "A measured quantity with its numeric value",
+            "$ref": "https://stuchalk.github.io/scidata/schema/parameter.json#parameter",
+        },
+        "substance": {
+            "description": "A chemical compound",
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"},
+                "name": {"type": "string"},
+                "inchikey": {"type": "string"},
+                "grade": {"type": "string"},
+                "purity": {"$ref": "#/definitions/value"},
+            },
+        },
+    },
 }
 
 # use four indents to make it easier to read the result:
